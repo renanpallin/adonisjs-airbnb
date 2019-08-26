@@ -20,5 +20,9 @@ Route.get('/', () => {
   return { greeting: 'Hello world in JSON' };
 });
 
+Route.get('/users', 'UserController.index'); // dev
 Route.post('/users', 'UserController.create');
 Route.post('/sessions', 'SessionController.create');
+Route.resource('/properties', 'PropertyController')
+  .apiOnly()
+  .middleware('auth');
