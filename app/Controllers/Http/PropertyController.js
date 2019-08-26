@@ -1,4 +1,5 @@
-'use strict'
+'use strict';
+const Property = use('App/Models/Property');
 
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
@@ -17,7 +18,8 @@ class PropertyController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, view }) {
+  async index({ request, response, view }) {
+    return Property.all();
   }
 
   /**
@@ -28,8 +30,7 @@ class PropertyController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response }) {
-  }
+  async store({ request, response }) {}
 
   /**
    * Display a single property.
@@ -40,7 +41,12 @@ class PropertyController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show ({ params, request, response, view }) {
+  async show({ params, request, response, view }) {
+    const property = await Property.findOrFail(params.id);
+
+    await property.load('images');
+
+    return property;
   }
 
   /**
@@ -51,8 +57,7 @@ class PropertyController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params, request, response }) {
-  }
+  async update({ params, request, response }) {}
 
   /**
    * Delete a property with id.
@@ -62,8 +67,17 @@ class PropertyController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy ({ params, request, response }) {
+  async destroy({ params, request, response }) {
+    const property = await Property.findOrFail(params.id);
+
+    if (property.user_id !== auth.user.id) {
+      return response.status(401).send({
+        error: 'Not authorized',
+      });
+    }
+
+    await property.delete();
   }
 }
 
-module.exports = PropertyController
+module.exports = PropertyController;
